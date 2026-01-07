@@ -2,12 +2,21 @@
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setRequests } from "../redux/slices/request.slice";
+import {
+  setIsRequestsLoading,
+  setRequests,
+} from "../redux/slices/request.slice";
 import { API_BASE_URL } from "../utils/constants";
+import CardEmptyData from "../components/CardEmptyData";
+import CardContents from "../components/CardContents";
+import LoadingBar from "../components/LoadingBar";
+import CardSkeleton from "../components/CardSkeleton";
 
 const Requests = () => {
   const dispatch = useDispatch();
-  const { requests } = useSelector((state) => state.requestReducer);
+  const { requests, isRequestsLoading } = useSelector(
+    (state) => state.requestReducer
+  );
 
   useEffect(() => {
     getAllReceivedRequests();
@@ -15,6 +24,7 @@ const Requests = () => {
 
   const getAllReceivedRequests = async () => {
     try {
+      dispatch(setIsRequestsLoading(true));
       const response = await axios.get(`${API_BASE_URL}/requests/received`, {
         withCredentials: true,
       });
@@ -24,6 +34,8 @@ const Requests = () => {
       }
     } catch (err) {
       console.log("Error fetching requests", err);
+    } finally {
+      dispatch(setIsRequestsLoading(false));
     }
   };
 
@@ -52,38 +64,67 @@ const Requests = () => {
 
   console.log("Requests in component", requests);
   return (
-    <div>
-      {requests.map((request: any) => (
-        <div className="flex justify-center my-4 min-h-96">
-          <div key={request._id} className="card bg-base-100 w-96 shadow-sm">
-            <div className="card-body">
-              <h2 className="card-title">
-                {request.fromUserId.firstName} {request.fromUserId.lastName}
-              </h2>
-              <div>Email: {request.fromUserId.email}</div>
-              <p>Skills : {request.fromUserId.skills.join(", ")}</p>
-              <div className="card-actions justify-end">
-                <button
-                  className="btn btn-error"
-                  onClick={() =>
-                    handleReceivedRequest(request?._id, "rejected")
-                  }
-                >
-                  Reject
-                </button>
-                <button
-                  className="btn btn-success"
-                  onClick={() =>
-                    handleReceivedRequest(request?._id, "accepted")
-                  }
-                >
-                  Accept
-                </button>
+    <div className="min-h-96">
+      <>
+        {isRequestsLoading ? (
+          <CardSkeleton />
+        ) : !requests?.length ? (
+          <CardEmptyData />
+        ) : (
+          requests.map((request: any) => (
+            <div className="flex justify-center my-4 " key={request._id}>
+              <CardContents data={request.fromUserId}>
+                <div className="card-actions justify-end">
+                  <button
+                    className="btn btn-error"
+                    onClick={() =>
+                      handleReceivedRequest(request?._id, "rejected")
+                    }
+                  >
+                    Reject
+                  </button>
+                  <button
+                    className="btn btn-success"
+                    onClick={() =>
+                      handleReceivedRequest(request?._id, "accepted")
+                    }
+                  >
+                    Accept
+                  </button>
+                </div>
+              </CardContents>
+              {/* <div key={request._id} className="card bg-base-100 w-96 shadow-sm">
+              <div className="card-body">
+                <h2 className="card-title">
+                  {request.fromUserId.firstName} {request.fromUserId.lastName}
+                </h2>
+                <div>Email: {request.fromUserId.email}</div>
+                <p>Skills : {request.fromUserId.skills.join(", ")}</p>
+                <div className="card-actions justify-end">
+                  <button
+                    className="btn btn-error"
+                    onClick={() =>
+                      handleReceivedRequest(request?._id, "rejected")
+                    }
+                  >
+                    Reject
+                  </button>
+                  <button
+                    className="btn btn-success"
+                    onClick={() =>
+                      handleReceivedRequest(request?._id, "accepted")
+                    }
+                  >
+                    Accept
+                  </button>
+                </div>
               </div>
+            </div> */}
             </div>
-          </div>
-        </div>
-      ))}
+          ))
+        )}
+        {/* {isRequestsLoading ? <LoadingBar /> : null} */}
+      </>
     </div>
   );
 };
