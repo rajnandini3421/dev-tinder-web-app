@@ -4,13 +4,18 @@ const ConnectionsSlice = createSlice({
   name: "connections",
   initialState: {
     connections: [],
+    isConnectionsLoading: false,
   },
   reducers: {
     setConnections: (state, action) => {
       state.connections = action.payload;
     },
+    setConnectionsLoading: (state, action) => {
+      state.isConnectionsLoading = action.payload;
+    },
   },
 });
 
-export const { setConnections } = ConnectionsSlice.actions;
+export const { setConnections, setConnectionsLoading } =
+  ConnectionsSlice.actions;
 export default ConnectionsSlice.reducer;

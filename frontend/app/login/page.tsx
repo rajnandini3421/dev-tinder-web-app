@@ -18,7 +18,7 @@ const LoginPage = () => {
   );
   const dispatch = useDispatch();
   const router = useRouter();
-  console.log("in LoginPage", userInfo, isUserAuthenticated);
+  console.log("in LoginPage added for testing", userInfo, isUserAuthenticated);
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
